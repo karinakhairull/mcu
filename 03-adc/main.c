@@ -4,6 +4,7 @@
 #include "stdio-task/stdio-task.h"
 #include "protocol-task/protocol-task.h"
 #include "led-task/led-task.h"
+#include "adc-task/adc-task.h"
 
 #define DEVICE_NAME "my-pico-device"
 #define DEVICE_VERSION "v1.0.0"
@@ -16,6 +17,8 @@ void led_blink_set_period_ms_callback(const char* args);
 void help_callback(const char* args);
 void mem_callback(const char* args);
 void wmem_callback(const char* args);
+void get_adc_callback(const char* args); 
+void get_temp_callback(const char* args);   
 
 api_t device_api[] =
 {
@@ -27,6 +30,8 @@ api_t device_api[] =
     {"help", help_callback, "show this help message"},
     {"mem", mem_callback, "read memory at address (hex), e.g., mem 20000000"},
     {"wmem", wmem_callback, "write memory at address (hex), e.g., wmem 20000000 12345678"},
+    {"get_adc", get_adc_callback, "read ADC voltage on GPIO 26"}, 
+    {"get_temp", get_temp_callback, "read RP2040 internal temperature"},
     {NULL, NULL, NULL},
 };
 
@@ -119,14 +124,30 @@ void wmem_callback(const char* args)
     printf("Written 0x%08X to address 0x%08X\n", value, addr);
 }
 
+void get_adc_callback(const char* args) // Измерение напряжения
+{
+    float voltage = adc_task_read_voltage();
+    printf("%f\n", voltage);
+}
+
+void get_temp_callback(const char* args)
+{
+    float temperature = adc_task_read_temperature();
+    printf("%f\n", temperature);
+}
+
+
+
 int main()
 {
     stdio_init_all();
     stdio_task_init();
     protocol_task_init(device_api);
     led_task_init();
+    adc_task_init();  
 
     printf("\nDevice ready! Type 'help' to see available commands.\n");
+    printf("To read ADC voltage on GPIO 26, type 'get_adc'\n");
 
     while (1)
     {
@@ -135,6 +156,6 @@ int main()
         {
             protocol_task_handle(command_string);
         }
-       // led_task_handle();
+       led_task_handle();
     }
 }
