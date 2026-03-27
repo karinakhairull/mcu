@@ -5,19 +5,22 @@ set(PICO_PLATFORM rp2040)
 
 include(pico_sdk_import.cmake)
 
-project(01_blink)
+project(02_echo)
 
 pico_sdk_init()
 
-add_executable(01_blink
+add_executable(02_echo
     main.c
 )
 
-target_link_libraries(01_blink
+target_link_libraries(02_echo
     pico_stdlib
 )
 
-# Указываем путь к файлу в папке build
-pico_set_linker_script(01_blink ${CMAKE_CURRENT_BINARY_DIR}/memmap_rp2040.ld)
+# Копируем файл в папку сборки
+configure_file(memmap_rp2040.ld memmap_rp2040.ld COPYONLY)
 
-pico_add_extra_outputs(01_blink)
+# Указываем путь к скопированному файлу 
+pico_set_linker_script(02_echo memmap_rp2040.ld)
+
+pico_add_extra_outputs(02_echo)
